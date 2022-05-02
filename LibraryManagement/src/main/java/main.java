@@ -52,7 +52,7 @@ public class main {
                         System.out.println("1. Elimina account\n" +
                                 "2. Inserisci libro\n" +
                                 "3. Elimina libro\n" +
-                                "4. Modifica libri\n" +
+                                "4. Modifica libro\n" +
                                 "5. Visualizza libri\n" );
 
                         System.out.println("Selezionare un'opzione: ");
@@ -65,6 +65,7 @@ public class main {
                                 String usernamedaEliminare = input.next();
 
                                 admin.eliminaUtente(usernamedaEliminare);
+
                                 break;
                             case 2:
                                 System.out.println("\nInserisci libro\n");
@@ -106,7 +107,6 @@ public class main {
                                 System.out.println("Opzione non valida!");
                                 break;
                         }
-
 
                     }
 

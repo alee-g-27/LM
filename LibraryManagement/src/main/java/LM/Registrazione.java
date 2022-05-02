@@ -42,11 +42,11 @@ public class Registrazione {
         //Verificare se l'utente esiste già
         try {
 
-            if (verificaUtente(NomeUtente) == false) {
+            if (!verificaUtente(NomeUtente)) {
                 System.out.println("Registrazione in corso...");
                 //JSON parser object to parse read file
                 JSONParser jsonParser = new JSONParser();
-                FileReader reader = new FileReader(".settings/users.json");
+                FileReader reader = new FileReader("../LM/.settings/users.json");
                 //Read JSON file
                 JSONArray usersObject = (JSONArray)jsonParser.parse(reader);
                 //JSONArray  = (JSONArray) obj;
@@ -61,7 +61,7 @@ public class Registrazione {
                 usersObject.add(user);
 
                 //Write JSON file
-                FileWriter file = new FileWriter(".settings/users.json");
+                FileWriter file = new FileWriter("../LM/.settings/users.json");
                 file.write(usersObject.toJSONString());
                 file.flush();
                 System.out.println("Registrazione completata!");
@@ -82,7 +82,7 @@ public class Registrazione {
 
         //JSON parser object to parse read file
         JSONParser jsonParser = new JSONParser();
-        FileReader reader = new FileReader(".settings/users.json");
+        FileReader reader = new FileReader("../LM/.settings/users.json");
         //Read JSON file
         JSONArray usersObject = (JSONArray)jsonParser.parse(reader);
         //JSONArray  = (JSONArray) obj;

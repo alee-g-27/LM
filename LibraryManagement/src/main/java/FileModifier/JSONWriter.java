@@ -15,12 +15,12 @@ public class JSONWriter
 
         // Read the settings JSON file and load the array in memory to work with it.
         JSONParser jsonParser = new JSONParser();
-        FileReader reader = new FileReader(".settings/users.json");
+        FileReader reader = new FileReader("./src/main/resources/users.json");
         JSONArray users = (JSONArray)jsonParser.parse(reader);
 
         // Create a new user to add to the array.
         JSONObject user = new JSONObject();
-        user.put("Nome Utente", "Cristiano");
+        user.put("Nome Utente", "Nome Utente");
         user.put("PSW", "qwerty");
         user.put("Tipoutente", "admin");
 
@@ -34,7 +34,7 @@ public class JSONWriter
         }*/
 
         //Write JSON file
-        try (FileWriter file = new FileWriter(".settings/users.json", false)){
+        try (FileWriter file = new FileWriter("src/main/resources/users.json", false)){
 
             file.write(users.toJSONString());
             file.flush();
