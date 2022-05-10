@@ -1,17 +1,11 @@
 package LM;
 
-import java.io.*;
-
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import java.lang.String;
 
 public class Libro {
 
     private String titolo;
+    private String autore;
     private int nPagine;
     private String CasaEditrice;
     private int AnnoUscita;
@@ -22,9 +16,10 @@ public class Libro {
     private int ID; //ID del libro nel database
 
 
-    public Libro (String titolo, int nPagine, String CasaEditrice, int AnnoUscita, String lingua, int nCopie, String ISBN, int dewey, int ID){
+    public Libro (String titolo, String autore, int nPagine, String CasaEditrice, int AnnoUscita, String lingua, int nCopie, String ISBN, int dewey, int ID){
 
         this.titolo = titolo;
+        this.autore = autore;
         this.nPagine = nPagine;
         this.CasaEditrice = CasaEditrice;
         this.AnnoUscita = AnnoUscita;
@@ -40,6 +35,7 @@ public class Libro {
     public Libro (Libro libro){
 
         this.titolo = libro.getTitolo();
+        this.autore = libro.getAutore();
         this.nPagine = libro.getnPagine();
         this.CasaEditrice = libro.getCasaEditrice();
         this.AnnoUscita = libro.getAnnoUscita();
@@ -48,6 +44,18 @@ public class Libro {
         this.ISBN = libro.getISBN();
         this.dewey = libro.getDewey();
         this.ID = libro.getID();
+
+    }
+
+    public String getAutore() {
+
+        return autore;
+
+    }
+
+    private String setAutore() {
+
+        return autore;
 
     }
 
@@ -156,136 +164,6 @@ public class Libro {
     public void setID(int ID) {
 
     	this.ID = ID;
-
-    }
-
-    //Metodo per inserire un libro nel file
-    public void creaLibro(Libro libro){
-
-        //Verificare se l'utente esiste già
-        try {
-            String titolodaTrovare = libro.getTitolo();
-            if (verificaLibro(titolodaTrovare)) {
-                System.out.println("Creazione libro in corso...");
-                JSONParser jsonParser = new JSONParser();
-                FileReader reader = new FileReader(".settings/books.json");
-                //Read JSON file
-                JSONArray bookObject = (JSONArray)jsonParser.parse(reader);
-
-                //Create JSON Object
-                JSONObject book = new JSONObject();
-                book.put("titolo", libro.getTitolo());
-                book.put("nPagine", libro.getnPagine());
-                book.put("CasaEditrice", libro.getCasaEditrice());
-                book.put("AnnoUscita", libro.getAnnoUscita());
-                book.put("lingua", libro.getLingua());
-                book.put("nCopie", libro.getnCopie());
-                book.put("ISBN", libro.getISBN());
-                book.put("dewey", libro.getDewey());
-                book.put("ID", libro.getID());
-
-                //Add JSON Object to JSON Array
-                bookObject.add(book);
-
-                //Write JSON file
-                FileWriter file = new FileWriter(".settings/books.json");
-                file.write(bookObject.toJSONString());
-                file.flush();
-                System.out.println("Libro inserito con successo!");
-
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    //Verifica libro
-    public boolean verificaLibro(String titolodaTrovare) throws IOException, ParseException {
-
-        boolean res = false;
-
-        JSONParser jsonParser = new JSONParser();
-        FileReader reader = new FileReader(".settings/users.json");
-        JSONArray books = (JSONArray)jsonParser.parse(reader);
-
-        for (int i = 0; i < books.size(); i++) {
-
-            JSONObject book = (JSONObject) books.get(i);
-
-            String titolo = (String) book.get("titolo");
-            System.out.println("titolo: " + titolo);
-
-            if (titolodaTrovare.equals(titolo)) {
-                res = true;
-            }else{
-                System.out.println("Libro già esistente!");
-            }
-
-        }
-
-        return res;
-
-    }
-
-    public void showBooks(){
-
-        //JSON parser object to parse read file
-        JSONParser jsonParser = new JSONParser();
-
-        try (FileReader reader = new FileReader("./.settings/books.json")){
-
-            //Read JSON file
-            Object obj = jsonParser.parse(reader);
-
-            JSONArray booksList = (JSONArray) obj;
-
-            booksList.forEach( user -> parseBooksObject( (JSONObject) user ) );
-
-
-
-        } catch (FileNotFoundException fnfe) {
-
-            fnfe.printStackTrace();
-
-        } catch (IOException ioe) {
-
-            ioe.printStackTrace();
-
-        } catch (ParseException pe) {
-
-            pe.printStackTrace();
-
-        }
-
-    }
-    
-    //Metodo per visualizzare il titolo dei libri dal file JSON
-    public void parseBooksObject(JSONObject book){
-
-        String titolo = (String) book.get("titolo");
-        System.out.println(titolo);
-
-    }
-
-    //Method that write the books in a JSON file
-
-
-    @Override
-    public String toString() {
-
-        return "Libro:" +
-                "\ntitolo : " + titolo +
-                "\nnPagine : " + nPagine +
-                "\nCasaEditrice : " + CasaEditrice +
-                "\nAnnoUscita : " + AnnoUscita +
-                "\nlingua : " + lingua +
-                "\nnCopie : " + nCopie +
-                "\nISBN : " + ISBN +
-                "\ndewey : " + dewey;
 
     }
 
