@@ -5,17 +5,17 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
 
 public class JSONModifier {
 
     public static void creaLibro (Libro libro) {
 
             try {
+
                 String titolodaTrovare = libro.getTitolo();
+
                 if (verificaLibro(titolodaTrovare)==false) {
 
                     System.out.println("Creazione libro in corso...");
@@ -35,7 +35,7 @@ public class JSONModifier {
                     book.put("nCopie", libro.getnCopie());
                     book.put("ISBN", libro.getISBN());
                     book.put("dewey", libro.getDewey());
-                    book.put("ID", libro.getID());
+                    book.put("ID", bookObject.size()+1);
 
                     //Add JSON Object to JSON Array
                     bookObject.add(book);
@@ -90,36 +90,64 @@ public class JSONModifier {
 
     }
 
-    //Elimina libro
-    public static void eliminaLibro(int IDdaTrovare) throws IOException, ParseException {
-        // Read the settings JSON file and load the array in memory to work with it.
+    public static void eliminaLibro(int ID) throws IOException, ParseException{
+
+        JSONParser parser = new JSONParser();
+        FileReader reader = new FileReader(".settings/books.json");
+        JSONArray books = (JSONArray) parser.parse(reader);
+
+        if (verificaLibroEsistente(ID)) {
+
+            for (int i = 0; i < books.size(); i++) {
+
+                JSONObject book = (JSONObject) books.get(i);
+                long id = (long) book.get("ID");
+
+                if (ID==id) {
+
+                    books.remove(i);
+                    System.out.println("Libro eliminato!");
+
+                }
+
+            }
+
+            FileWriter file = new FileWriter(".settings/books.json");
+            file.write(books.toJSONString());
+            file.flush();
+
+        }else{
+
+            System.out.println("Libro non esistente!");
+
+        }
+
+
+    }
+
+    public static boolean verificaLibroEsistente(int ID) throws IOException, ParseException {
+
+        boolean res = false;
+
         JSONParser jsonParser = new JSONParser();
         FileReader reader = new FileReader(".settings/books.json");
-        JSONArray books = (JSONArray)jsonParser.parse(reader);
+        JSONArray booksObject = (JSONArray)jsonParser.parse(reader);
 
-        for (int i = 0; i < books.size(); i++) {
+        for (int i = 0; i < booksObject.size(); i++) {
 
-            /*if (((JSONObject)books.get(i)).get("ID").equals(IDdaTrovare)) {
+            JSONObject user = (JSONObject) booksObject.get(i);
 
-                System.out.println(i);
+            long id = (long) user.get("ID");
 
-                books.remove(i);
+            if (ID==id) {
 
-            }*/
-            System.out.println("ID: " + ((JSONObject)books.get(i)).get("ID"));
-            System.out.println("ID da trovare: " + IDdaTrovare);
-            //if the ID is found, remove it from the array
-            if (!((JSONObject)books.get(i)).get("ID").equals(IDdaTrovare)) {
-
-                books.remove(i);
-
-            }else{
-
-                System.out.println("Libro non trovato!");
+                res = true;
 
             }
 
         }
+        System.out.println(res);
+        return res;
 
     }
 
@@ -131,38 +159,6 @@ public class JSONModifier {
 
     }
 
-    public void showBooks(){
-
-        //JSON parser object to parse read file
-        JSONParser jsonParser = new JSONParser();
-
-        try (FileReader reader = new FileReader("./.settings/books.json")){
-
-            //Read JSON file
-            Object obj = jsonParser.parse(reader);
-
-            JSONArray booksList = (JSONArray) obj;
-
-            booksList.forEach( user -> parseBooksObject( (JSONObject) user ) );
-
-
-
-        } catch (FileNotFoundException fnfe) {
-
-            fnfe.printStackTrace();
-
-        } catch (IOException ioe) {
-
-            ioe.printStackTrace();
-
-        } catch (ParseException pe) {
-
-            pe.printStackTrace();
-
-        }
-
-    }
-
     //----------------------------------------------------
     //OPERAZIONI SULL'ACCOUNT
     //----------------------------------------------------
@@ -170,20 +166,17 @@ public class JSONModifier {
     //Metodo per creare l'utente
     public static void creaUtente(String NomeUtente, String PSW, String tipoUtente){
 
-        //Verificare se l'utente esiste già
         try {
 
             if (verificaUtenteEsistente(NomeUtente) == false) {
+
                 System.out.println("Registrazione in corso...");
-                //JSON parser object to parse read file
+
                 JSONParser jsonParser = new JSONParser();
                 FileReader reader = new FileReader(".settings/users.json");
-                //Read JSON file
                 JSONArray usersObject = (JSONArray)jsonParser.parse(reader);
-                //JSONArray  = (JSONArray) obj;
-
-                //Create JSON Object
                 JSONObject user = new JSONObject();
+
                 user.put("Nome Utente", NomeUtente);
                 user.put("PSW", PSW);
                 user.put("Tipoutente", tipoUtente);
@@ -195,9 +188,10 @@ public class JSONModifier {
                 FileWriter file = new FileWriter(".settings/users.json");
                 file.write(usersObject.toJSONString());
                 file.flush();
+
                 System.out.println("Registrazione completata!");
 
-            }else {
+            }else{
 
                 System.out.println("Utente già esistente!");
 
@@ -221,24 +215,18 @@ public class JSONModifier {
 
         boolean res = false;
 
-        //JSON parser object to parse read file
         JSONParser jsonParser = new JSONParser();
         FileReader reader = new FileReader(".settings/users.json");
-        //Read JSON file
         JSONArray usersObject = (JSONArray)jsonParser.parse(reader);
-        //JSONArray  = (JSONArray) obj;
 
         for (int i = 0; i < usersObject.size(); i++) {
 
             JSONObject user = (JSONObject) usersObject.get(i);
 
-            //Get user name
-            String psw = (String) user.get("PSW");
-
-            //Get user password
             String nomeUtente = (String) user.get("Nome Utente");
 
-            //Get user type
+            String psw = (String) user.get("PSW");
+
             String type = (String) user.get("Tipoutente");
 
             if (NomeUtente.equals(nomeUtente) && PSW.equals(psw) && tipoUtente.equals(type)) {
@@ -259,15 +247,16 @@ public class JSONModifier {
 
         res = userReader(NomeUtente, PSW, tipoUtente);
 
-        System.out.println("Verifica delle credenziali in corso...");
+        System.out.println("\nVerifica delle credenziali in corso...");
+
 
         if (res) {
 
-            System.out.println("Accesso riuscito!");
+            System.out.println("Accesso riuscito!\n");
 
         }else{
 
-            System.out.println("Accesso non riuscito!");
+            System.out.println("Accesso non riuscito!\n");
 
         }
 
@@ -278,12 +267,9 @@ public class JSONModifier {
 
         boolean res = false;
 
-        //JSON parser object to parse read file
         JSONParser jsonParser = new JSONParser();
         FileReader reader = new FileReader(".settings/users.json");
-        //Read JSON file
         JSONArray usersObject = (JSONArray)jsonParser.parse(reader);
-        //JSONArray  = (JSONArray) obj;
 
         for (int i = 0; i < usersObject.size(); i++) {
 
@@ -293,7 +279,9 @@ public class JSONModifier {
             System.out.println("Nome Utente: " + nomeUtente);
 
             if (NomeUtente.equals(nomeUtente)) {
+
                 res = true;
+
             }
 
         }
@@ -302,8 +290,144 @@ public class JSONModifier {
 
     }
 
-    //Delete a user from the JSON file
-    public static void eliminaUtente(String nomeUtente) throws IOException, ParseException {
+    //Metodo per visualizzare i libri in base al titolo
+    public static void visualizzaLibri() throws IOException, ParseException {
+
+        JSONParser jsonParser = new JSONParser();
+        FileReader reader = new FileReader(".settings/books.json");
+        JSONArray booksObject = (JSONArray)jsonParser.parse(reader);
+
+        String[] titoli = new String[booksObject.size()];
+        //long[] ID = new long[booksObject.size()];
+
+        long[] indici = new long[booksObject.size()];
+        long[] ID = new long[booksObject.size()];
+
+        titoli = prendiTitoli();
+        ordinaLibri(titoli);
+        //setIndiceLibri(titoli, indici);
+        ID=getIndiceLibri();
+        /*
+        for(int i = 0; i < booksObject.size(); i++) {
+            JSONObject books = (JSONObject) booksObject.get(i);
+            String id = (String) books.get("ID");
+
+            if (ID[i].equals(id)) {
+
+            }
+        }*/
+
+        System.out.println("\nTitoli dei libri disponibili:\n");
+
+        for(int i = 0;i < booksObject.size();i++) {
+
+            System.out.println((i+1) + " - " +  titoli[i] + "ID: " + ID[i] + "\n");
+
+        }
+
+    }
+
+    public static void visualizzaLibro(int indice) throws IOException, ParseException {
+
+        JSONParser jsonParser = new JSONParser();
+        FileReader reader = new FileReader(".settings/books.json");
+        JSONArray booksObject = (JSONArray)jsonParser.parse(reader);
+        JSONObject books;
+
+        books = (JSONObject) booksObject.get(indice);
+        System.out.println("\nTitolo: " + books.get("titolo") + "\n");
+        System.out.println("Autore: " + books.get("autore") + "\n");
+        System.out.println("Lingua: " + books.get("lingua") + "\n");
+        System.out.println("Numero pagine: " + books.get("nPagine") + "\n");
+        System.out.println("Anno di pubblicazione: " + books.get("AnnoUscita") + "\n");
+        System.out.println("ISBN: " + books.get("ISBN") + "\n");
+        System.out.println("Casa Editrice: " + books.get("CasaEditrice") + "\n");
+        System.out.println("Dewey: " + books.get("dewey") + "\n");
+        System.out.println("Numero copie disponibili: " + books.get("nCopie") + "\n");
+        System.out.println("ID: " + books.get("ID") + "\n");
+
+    }
+
+    private static String[] prendiTitoli() throws IOException, ParseException {
+
+        JSONParser jsonParser = new JSONParser();
+        FileReader reader = new FileReader(".settings/books.json");
+        JSONArray booksObject = (JSONArray)jsonParser.parse(reader);
+
+        String[] titoli = new String[booksObject.size()];
+
+        for(int i = 0; i < booksObject.size(); i++) {
+
+            JSONObject books = (JSONObject) booksObject.get(i);
+            String titolo = (String) books.get("titolo");
+            titoli[i] = titolo;
+
+        }
+
+        return titoli;
+
+    }
+
+
+    //Metodo per ordinare i libri in base al titolo
+    private static String[] ordinaLibri (String[] Arr) {
+
+        Arrays.sort(Arr);
+
+        return Arr;
+
+    }
+
+    //DA SISTEMARE
+    private static long[] getIndiceLibri() throws IOException, ParseException {
+
+        JSONParser jsonParser = new JSONParser();
+        FileReader reader = new FileReader(".settings/books.json");
+        JSONArray booksObject = (JSONArray)jsonParser.parse(reader);
+        //Create JSON Object
+        JSONObject book = new JSONObject();
+        long arrIndici[] = new long[booksObject.size()];
+
+        for(int i = 0; i < booksObject.size(); i++) {
+            book = (JSONObject) booksObject.get(i);
+
+            arrIndici[i] = (long) book.get("ID");
+            System.out.println(arrIndici[i]);
+
+        }
+
+        return arrIndici;
+
+    }
+
+    /*public static void changeBooksID() throws IOException, ParseException {
+
+        JSONParser jsonParser = new JSONParser();
+        FileReader reader = new FileReader(".settings/books.json");
+        JSONArray booksObject = (JSONArray)jsonParser.parse(reader);
+        //Create JSON Object
+        JSONObject book = new JSONObject();
+
+        int arrIndici[] = new int[booksObject.size()];
+
+        for(int i = 0; i < booksObject.size(); i++) {
+
+            //arrIndici[i] = i+1;
+            book.remove("ID");
+
+        }
+
+        booksObject.remove(book);
+
+        //Write JSON file
+        FileWriter file = new FileWriter(".settings/books.json");
+        file.write(booksObject.toJSONString());
+        file.flush();
+
+    }*/
+
+
+    public static void eliminaUtente(String nomeUtente) throws IOException, ParseException{
 
         JSONParser parser = new JSONParser();
         FileReader reader = new FileReader(".settings/users.json");
@@ -319,7 +443,7 @@ public class JSONModifier {
                 if (userName.equals(nomeUtente)) {
 
                     users.remove(i);
-                    System.out.println("Utente eliminato");
+                    System.out.println("Utente eliminato!");
 
                 }
 
@@ -329,12 +453,11 @@ public class JSONModifier {
             file.write(users.toJSONString());
             file.flush();
 
-        }else {
+        }else{
 
             System.out.println("Utente non esistente!");
 
         }
-
 
     }
 
@@ -346,27 +469,22 @@ public class JSONModifier {
 
         //Verificare se l'utente esiste già
         try {
-             System.out.println("Invio richiesta in corso...");
-                //JSON parser object to parse read file
-                JSONParser jsonParser = new JSONParser();
-                FileReader reader = new FileReader(".settings/request.json");
-                //Read JSON file
-                JSONArray richiestaObject = (JSONArray)jsonParser.parse(reader);
-                //JSONArray  = (JSONArray) obj;
+            System.out.println("Invio richiesta in corso...");
 
-                //Create JSON Object
-                JSONObject richiesta = new JSONObject();
-                richiesta.put("Nome Utente", NomeUtente);
-                richiesta.put("Richiesta", Richiesta);
+            JSONParser jsonParser = new JSONParser();
+            FileReader reader = new FileReader(".settings/request.json");
+            JSONArray richiestaObject = (JSONArray)jsonParser.parse(reader);
 
-                //Add JSON Object to JSON Array
-                richiestaObject.add(richiesta);
+            JSONObject richiesta = new JSONObject();
+            richiesta.put("Nome Utente", NomeUtente);
+            richiesta.put("Richiesta", Richiesta);
 
-                //Write JSON file
-                FileWriter file = new FileWriter(".settings/request.json");
-                file.write(richiestaObject.toJSONString());
-                file.flush();
-                System.out.println("Richiesta inviata!");
+            richiestaObject.add(richiesta);
+
+            FileWriter file = new FileWriter(".settings/request.json");
+            file.write(richiestaObject.toJSONString());
+            file.flush();
+            System.out.println("Richiesta inviata!");
 
         } catch (IOException e) {
 
@@ -379,7 +497,5 @@ public class JSONModifier {
         }
 
     }
-
-
 
 }

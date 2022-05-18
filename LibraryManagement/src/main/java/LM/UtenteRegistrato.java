@@ -4,7 +4,7 @@ public class UtenteRegistrato implements UtenteGenerico {
 
     private String nomeUtente;
     private String password;
-    private String type;
+    private final String type;
 
     public UtenteRegistrato(String nomeUtente, String password, String type) {
 

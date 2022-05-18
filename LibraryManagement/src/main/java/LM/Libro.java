@@ -16,7 +16,7 @@ public class Libro {
     private int ID; //ID del libro nel database
 
 
-    public Libro (String titolo, String autore, int nPagine, String CasaEditrice, int AnnoUscita, String lingua, int nCopie, String ISBN, int dewey, int ID){
+    public Libro (String titolo, String autore, int nPagine, String CasaEditrice, int AnnoUscita, String lingua, int nCopie, String ISBN, int dewey){
 
         this.titolo = titolo;
         this.autore = autore;
@@ -27,7 +27,6 @@ public class Libro {
         this.nCopie = nCopie;
         this.ISBN = ISBN;
         this.dewey = dewey;
-        this.ID = ID;
 
     }
 
@@ -166,7 +165,5 @@ public class Libro {
     	this.ID = ID;
 
     }
-
-
 
 }
